@@ -15,6 +15,9 @@ public class CharacterMotion : MonoBehaviour
     private CharacterController controller;
     private Transform camPivot;
 
+
+    public Animator animator;
+
     public InputActionProperty lookAction;
     public InputActionProperty movementAction;
     public InputActionProperty jumpAction;
@@ -49,6 +52,7 @@ public class CharacterMotion : MonoBehaviour
         {
             Debug.Log("crouch start!");
             isCrouching = true;
+            animator.SetBool("crouching", true);
         }
     }
 
@@ -58,6 +62,7 @@ public class CharacterMotion : MonoBehaviour
         {
             Debug.Log("crouch end!");
             isCrouching = false;
+            animator.SetBool("crouching", false);
         }
     }
 
@@ -68,6 +73,7 @@ public class CharacterMotion : MonoBehaviour
         {
             Debug.Log("jumping!");
             isJumping = true;
+            animator.SetBool("jumping", true);
             jumpVelocity = jumpForce;
         }
     }
@@ -86,6 +92,7 @@ public class CharacterMotion : MonoBehaviour
         if (isJumping && controller.isGrounded && jumpVelocity == 0)
         {
             isJumping = false;
+            animator.SetBool("jumping", false);
         }
 
         Vector2 direction = movementAction.action.ReadValue<Vector2>();
@@ -96,6 +103,8 @@ public class CharacterMotion : MonoBehaviour
         float zMotion = direction.y * moveSpeed;
         float xMotion = direction.x * moveSpeed;
         float yMotion = jumpVelocity + gravityY;
+
+        animator.SetBool("walking", (Math.Abs(xMotion) > 0 || Math.Abs(zMotion) > 0));
 
         Debug.Log($"isJumping = {isJumping}");
         Debug.Log($"jumpVelocity = {jumpVelocity}");
