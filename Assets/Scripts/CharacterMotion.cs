@@ -104,7 +104,7 @@ public class CharacterMotion : MonoBehaviour
         float xMotion = direction.x * moveSpeed;
         float yMotion = jumpVelocity + gravityY;
 
-        animator.SetBool("walking", (Math.Abs(xMotion) > 0 || Math.Abs(zMotion) > 0));
+        animator.SetBool("walking", Math.Abs(xMotion) > 0 || Math.Abs(zMotion) > 0);
 
         Debug.Log($"isJumping = {isJumping}");
         Debug.Log($"jumpVelocity = {jumpVelocity}");
