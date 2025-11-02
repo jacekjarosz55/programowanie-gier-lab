@@ -14,6 +14,7 @@ public class CharacterMotion : MonoBehaviour
 
     private CharacterController controller;
     private Transform camPivot;
+    private Transform cameraTransform;
 
 
     public Animator animator;
@@ -22,6 +23,8 @@ public class CharacterMotion : MonoBehaviour
     public InputActionProperty movementAction;
     public InputActionProperty jumpAction;
     public InputActionProperty crouchAction;
+
+    public InputActionProperty zoomAction;
 
     public float sensitivity = 1.0f;
     public float walkSpeed = 1.0f;
@@ -43,6 +46,7 @@ public class CharacterMotion : MonoBehaviour
         crouchAction.action.started += CrouchAction_Started;
         crouchAction.action.canceled += CrouchAction_Cancelled;
         camPivot = GameObject.Find("Camera Pivot").transform;
+        cameraTransform = GameObject.Find("Main Camera").transform;
     }
 
 
@@ -122,5 +126,14 @@ public class CharacterMotion : MonoBehaviour
         Vector3 newEulerRotation = camPivot.eulerAngles + new Vector3(-look.y * sensitivity, 0f, 0f);
         newEulerRotation.x = ClampAngle(newEulerRotation.x, -90.0f, 90.0f);
         camPivot.eulerAngles = newEulerRotation;
+
+
+        float scroll = zoomAction.action.ReadValue<Vector2>().y;
+        Vector3 pos = cameraTransform.transform.localPosition;
+        pos.z += scroll;
+        pos.z = Mathf.Clamp(pos.z, -8, -2);
+        cameraTransform.transform.localPosition = pos;
+
+
     }
 }
