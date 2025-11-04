@@ -1,20 +1,30 @@
 using System;
+using System.Collections;
 using NUnit.Framework;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
+public enum CharacterState
+{
+    Idle,
+    Jumping,
+    Crouching,
+    Shooting
+}
 
 public class CharacterMotion : MonoBehaviour
 {
 
-    private bool isJumping = false;
-    private bool isCrouching = false;
+
+    private CharacterState state = CharacterState.Idle;
+    private bool isWalking = false;
 
     private CharacterController controller;
     private Transform camPivot;
     private Transform cameraTransform;
+
+    private Transform luger;
 
 
     public Animator animator;
@@ -23,6 +33,7 @@ public class CharacterMotion : MonoBehaviour
     public InputActionProperty movementAction;
     public InputActionProperty jumpAction;
     public InputActionProperty crouchAction;
+    public InputActionProperty shootAction;
 
     public InputActionProperty zoomAction;
 
@@ -34,6 +45,8 @@ public class CharacterMotion : MonoBehaviour
     public float jumpForce = 20.0f;
     public float jumpAttentuation = 10.0f;
     private float jumpVelocity = 0.0f;
+
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -47,25 +60,43 @@ public class CharacterMotion : MonoBehaviour
         crouchAction.action.canceled += CrouchAction_Cancelled;
         camPivot = GameObject.Find("Camera Pivot").transform;
         cameraTransform = GameObject.Find("Main Camera").transform;
+        shootAction.action.performed += ShootAction_Performed;
+
+
+        luger = GameObject.Find("Luger" ).transform;
+        // xDDD
+        luger.localScale = Vector3.zero;
     }
 
 
+
+    private void ShootAction_Performed(InputAction.CallbackContext context)
+    {
+        if(state == CharacterState.Idle)
+        {
+            animator.SetTrigger("shoot");
+            state = CharacterState.Shooting;
+            StartCoroutine(ShootDelay());
+        }
+            
+    }
+
     private void CrouchAction_Started(InputAction.CallbackContext context)
     {
-        if(!isJumping && controller.isGrounded)
+        if(state != CharacterState.Jumping && controller.isGrounded)
         {
             Debug.Log("crouch start!");
-            isCrouching = true;
+            state = CharacterState.Crouching;
             animator.SetBool("crouching", true);
         }
     }
 
     private void CrouchAction_Cancelled(InputAction.CallbackContext context)
     {
-        if (isCrouching)
+        if (state == CharacterState.Crouching)
         {
             Debug.Log("crouch end!");
-            isCrouching = false;
+            state = CharacterState.Idle;
             animator.SetBool("crouching", false);
         }
     }
@@ -73,10 +104,10 @@ public class CharacterMotion : MonoBehaviour
 
     private void JumpAction_Performed(InputAction.CallbackContext obj)
     {
-        if (controller.isGrounded && !isJumping && !isCrouching)
+        if (controller.isGrounded && state == CharacterState.Idle)
         {
             Debug.Log("jumping!");
-            isJumping = true;
+            state = CharacterState.Jumping;
             animator.SetBool("jumping", true);
             jumpVelocity = jumpForce;
         }
@@ -90,36 +121,63 @@ public class CharacterMotion : MonoBehaviour
         return Mathf.Min(angle, to);
     }
 
+
+    private IEnumerator ShootDelay() {
+        yield return new WaitForSeconds(0.25f);
+        //xDDD
+        luger.localScale = Vector3.one;
+        yield return new WaitForSeconds(3.75f);
+        luger.localScale = Vector3.zero;
+        yield return new WaitForSeconds(1.50f);
+
+        state = CharacterState.Idle;
+    }
+
+
     // Update is called once per frame
     void Update()
     {
-        if (isJumping && controller.isGrounded && jumpVelocity == 0)
+       
+        if (state == CharacterState.Jumping && controller.isGrounded && jumpVelocity == 0)
         {
-            isJumping = false;
+            state = CharacterState.Idle;
             animator.SetBool("jumping", false);
         }
 
         Vector2 direction = movementAction.action.ReadValue<Vector2>();
         float gravityY = Physics.gravity.y;
 
-        float moveSpeed = isCrouching ? crouchSpeed : walkSpeed;
+        float moveSpeed = state == CharacterState.Crouching ? crouchSpeed : walkSpeed;
 
         float zMotion = direction.y * moveSpeed;
         float xMotion = direction.x * moveSpeed;
         float yMotion = jumpVelocity + gravityY;
 
-        animator.SetBool("walking", Math.Abs(xMotion) > 0 || Math.Abs(zMotion) > 0);
 
-        Debug.Log($"isJumping = {isJumping}");
-        Debug.Log($"jumpVelocity = {jumpVelocity}");
-        Debug.Log($"gravityY = {gravityY}");
-        Debug.Log($"yMotion = {yMotion}");
-
-        controller.Move((transform.forward * zMotion + transform.right * xMotion + transform.up * yMotion) * Time.deltaTime);
+        if (CanWalk())
+        {
+            controller.Move((transform.forward * zMotion + transform.right * xMotion + transform.up * yMotion) * Time.deltaTime);
+            isWalking = Math.Abs(xMotion) > 0 || Math.Abs(zMotion) > 0;
+            animator.SetBool("walking", isWalking);
+        }else
+        {
+            isWalking = false;
+        }
 
         jumpVelocity = Mathf.MoveTowards(jumpVelocity, 0, jumpAttentuation * Time.deltaTime);
 
 
+        HandleMouseLook();
+    }
+
+
+    private bool CanWalk()
+    {
+        return state != CharacterState.Shooting;
+    }
+
+    private void HandleMouseLook()
+    {
         Vector2 look = lookAction.action.ReadValue<Vector2>();
         transform.Rotate(Vector3.up, look.x * sensitivity);
 
@@ -127,13 +185,10 @@ public class CharacterMotion : MonoBehaviour
         newEulerRotation.x = ClampAngle(newEulerRotation.x, -90.0f, 90.0f);
         camPivot.eulerAngles = newEulerRotation;
 
-
         float scroll = zoomAction.action.ReadValue<Vector2>().y;
         Vector3 pos = cameraTransform.transform.localPosition;
         pos.z += scroll;
         pos.z = Mathf.Clamp(pos.z, -8, -2);
         cameraTransform.transform.localPosition = pos;
-
-
     }
 }
