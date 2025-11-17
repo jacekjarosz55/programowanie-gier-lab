@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -20,8 +21,10 @@ public class CharacterMotion : MonoBehaviour
     public InputActionProperty shootAction;
     public InputActionProperty aimAction;
     public InputActionProperty zoomAction;
+    public InputActionProperty switchBulletAction;
 
-    public GameObject physicsBullet;
+    public List<GameObject> bulletTypes;
+    private int currentBullet = 0;
 
     public Transform shootTransform;
 
@@ -49,11 +52,13 @@ public class CharacterMotion : MonoBehaviour
 
     private Camera cam;
 
+    private bool isWalking = false;
+
 
     private IEnumerator HandleShoot()
     {
         isShooting = true;
-        Instantiate(physicsBullet, shootTransform.position, cameraTransform.rotation, null);
+        Instantiate(bulletTypes[currentBullet], shootTransform.position, cameraTransform.rotation, null);
         
         yield return new WaitForSeconds(1);
         isShooting = false;
@@ -73,6 +78,7 @@ public class CharacterMotion : MonoBehaviour
         crouchAction.action.canceled += CrouchAction_Cancelled;
         shootAction.action.started += ShootAction_Started;
         aimAction.action.started += AimAction_Started;
+        switchBulletAction.action.started += SwitchBulletAction_Started;
 
 
         camPivot = GameObject.Find("Camera Pivot").transform;
@@ -80,16 +86,23 @@ public class CharacterMotion : MonoBehaviour
         cam = GameObject.Find("Main Camera").GetComponent<Camera>();
     }
 
+    private void SwitchBulletAction_Started(InputAction.CallbackContext context)
+    {
+        currentBullet = (currentBullet + 1) % bulletTypes.Count;
+    }
+
     private void AimAction_Started(InputAction.CallbackContext context)
     {
+        if (isJumping && isCrouching && isWalking) return;
         isAiming = !isAiming;
+        animator.SetBool("aiming", isAiming);
         if (isAiming)
         {
-            cam.fieldOfView /= 2;
+            cam.fieldOfView /= 1.25f;
         }
         else
         {
-            cam.fieldOfView *= 2;
+            cam.fieldOfView *= 1.25f;
         }
     }
 
@@ -100,7 +113,7 @@ public class CharacterMotion : MonoBehaviour
 
     private void CrouchAction_Started(InputAction.CallbackContext context)
     {
-        if(!isShooting && !isJumping && controller.isGrounded)
+        if(!isAiming && !isShooting && !isJumping && controller.isGrounded)
         {
             isCrouching = true;
             animator.SetBool("crouching", true);
@@ -148,10 +161,22 @@ public class CharacterMotion : MonoBehaviour
         Vector2 direction = movementAction.action.ReadValue<Vector2>();
         float gravityY = Physics.gravity.y;
         float moveSpeed = walkSpeed * (isCrouching ? crouchSpeedFactor : 1) * (isAiming ? aimSpeedFactor : 1);
-        float zMotion = direction.y * moveSpeed;
-        float xMotion = direction.x * moveSpeed;
-        float yMotion = jumpVelocity + gravityY;
-        animator.SetBool("walking", Math.Abs(xMotion) > 0 || Math.Abs(zMotion) > 0);
+        float zMotion = 0;
+        float xMotion = 0;
+
+        if (!isAiming) { 
+            zMotion = direction.y * moveSpeed;
+            xMotion = direction.x * moveSpeed;
+            isWalking = Math.Abs(xMotion) > 0 || Math.Abs(zMotion) > 0;
+            animator.SetBool("walking", isWalking);
+        }
+        else
+        {
+            isWalking = false;
+            animator.SetBool("walking", isWalking);
+        }
+
+            float yMotion = jumpVelocity + gravityY;
         controller.Move((transform.forward * zMotion + transform.right * xMotion + transform.up * yMotion) * Time.deltaTime);
         jumpVelocity = Mathf.MoveTowards(jumpVelocity, 0, jumpAttentuation * Time.deltaTime);
 

@@ -16,7 +16,7 @@ public class PhysicsBullet : MonoBehaviour
 
     private IEnumerator KillCooldown()
     {
-        yield return new WaitForSeconds(5);
+        yield return new WaitForSeconds(10);
         Explode();
         yield return null;
     }

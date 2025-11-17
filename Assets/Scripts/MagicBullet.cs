@@ -5,28 +5,45 @@ public class MagicBullet : MonoBehaviour
 {
     public GameObject explosionParticles;
 
+    private Rigidbody rb;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        rb = GetComponent<Rigidbody>();
+        rb.AddForce(transform.forward * 10.0f, ForceMode.VelocityChange);
+        StartCoroutine(KillCooldown());
     }
 
-    // Update is called once per frame
-    void Update()
+    private IEnumerator HitKillCooldown()
     {
-        transform.position += 10.0f * Time.deltaTime * transform.forward;
-        StartCoroutine(KillCooldown());
+        yield return new WaitForSeconds(5);
+        Explode();
+        yield return null;
     }
 
     private IEnumerator KillCooldown()
     {
-        yield return new WaitForSeconds(4);
+        yield return new WaitForSeconds(10);
         Explode();
         yield return null;
     }
+
+
     private void Explode()
     {
         Instantiate(explosionParticles, transform.position, Quaternion.identity);
         Destroy(gameObject);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        StartCoroutine(HitKillCooldown());
+    }
+
+
+    // Update is called once per frame
+    void Update()
+    {
+        
     }
 }
