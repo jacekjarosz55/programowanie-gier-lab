@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using NUnit.Framework;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -9,13 +10,6 @@ using UnityEngine.InputSystem;
 public class CharacterMotion : MonoBehaviour
 {
 
-    private bool isJumping = false;
-    private bool isCrouching = false;
-
-    private CharacterController controller;
-    private Transform camPivot;
-    private Transform cameraTransform;
-
 
     public Animator animator;
 
@@ -23,17 +17,49 @@ public class CharacterMotion : MonoBehaviour
     public InputActionProperty movementAction;
     public InputActionProperty jumpAction;
     public InputActionProperty crouchAction;
-
+    public InputActionProperty shootAction;
+    public InputActionProperty aimAction;
     public InputActionProperty zoomAction;
+
+    public GameObject physicsBullet;
+
+    public Transform shootTransform;
+
 
     public float sensitivity = 1.0f;
     public float walkSpeed = 1.0f;
-    public float crouchSpeed = 0.5f;
+
+    public float crouchSpeedFactor = 0.5f;
+    public float aimSpeedFactor = 0.5f;
 
 
     public float jumpForce = 20.0f;
     public float jumpAttentuation = 10.0f;
     private float jumpVelocity = 0.0f;
+
+    private bool isJumping = false;
+    private bool isCrouching = false;
+    private bool isAiming = false;
+    private bool isShooting = false;
+
+
+    private CharacterController controller;
+    private Transform camPivot;
+    private Transform cameraTransform;
+
+    private Camera cam;
+
+
+    private IEnumerator HandleShoot()
+    {
+        isShooting = true;
+        Instantiate(physicsBullet, shootTransform.position, cameraTransform.rotation, null);
+        
+        yield return new WaitForSeconds(1);
+        isShooting = false;
+        yield return null;
+    }
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -45,16 +71,37 @@ public class CharacterMotion : MonoBehaviour
         jumpAction.action.performed += JumpAction_Performed;
         crouchAction.action.started += CrouchAction_Started;
         crouchAction.action.canceled += CrouchAction_Cancelled;
+        shootAction.action.started += ShootAction_Started;
+        aimAction.action.started += AimAction_Started;
+
+
         camPivot = GameObject.Find("Camera Pivot").transform;
         cameraTransform = GameObject.Find("Main Camera").transform;
+        cam = GameObject.Find("Main Camera").GetComponent<Camera>();
     }
 
+    private void AimAction_Started(InputAction.CallbackContext context)
+    {
+        isAiming = !isAiming;
+        if (isAiming)
+        {
+            cam.fieldOfView /= 2;
+        }
+        else
+        {
+            cam.fieldOfView *= 2;
+        }
+    }
+
+    private void ShootAction_Started(InputAction.CallbackContext context)
+    {
+        StartCoroutine(HandleShoot());
+    }
 
     private void CrouchAction_Started(InputAction.CallbackContext context)
     {
-        if(!isJumping && controller.isGrounded)
+        if(!isShooting && !isJumping && controller.isGrounded)
         {
-            Debug.Log("crouch start!");
             isCrouching = true;
             animator.SetBool("crouching", true);
         }
@@ -64,7 +111,6 @@ public class CharacterMotion : MonoBehaviour
     {
         if (isCrouching)
         {
-            Debug.Log("crouch end!");
             isCrouching = false;
             animator.SetBool("crouching", false);
         }
@@ -73,7 +119,7 @@ public class CharacterMotion : MonoBehaviour
 
     private void JumpAction_Performed(InputAction.CallbackContext obj)
     {
-        if (controller.isGrounded && !isJumping && !isCrouching)
+        if (controller.isGrounded && !isJumping && !isCrouching && !isShooting && !isAiming)
         {
             Debug.Log("jumping!");
             isJumping = true;
@@ -101,22 +147,12 @@ public class CharacterMotion : MonoBehaviour
 
         Vector2 direction = movementAction.action.ReadValue<Vector2>();
         float gravityY = Physics.gravity.y;
-
-        float moveSpeed = isCrouching ? crouchSpeed : walkSpeed;
-
+        float moveSpeed = walkSpeed * (isCrouching ? crouchSpeedFactor : 1) * (isAiming ? aimSpeedFactor : 1);
         float zMotion = direction.y * moveSpeed;
         float xMotion = direction.x * moveSpeed;
         float yMotion = jumpVelocity + gravityY;
-
         animator.SetBool("walking", Math.Abs(xMotion) > 0 || Math.Abs(zMotion) > 0);
-
-        Debug.Log($"isJumping = {isJumping}");
-        Debug.Log($"jumpVelocity = {jumpVelocity}");
-        Debug.Log($"gravityY = {gravityY}");
-        Debug.Log($"yMotion = {yMotion}");
-
         controller.Move((transform.forward * zMotion + transform.right * xMotion + transform.up * yMotion) * Time.deltaTime);
-
         jumpVelocity = Mathf.MoveTowards(jumpVelocity, 0, jumpAttentuation * Time.deltaTime);
 
 
@@ -129,11 +165,19 @@ public class CharacterMotion : MonoBehaviour
 
 
         float scroll = zoomAction.action.ReadValue<Vector2>().y;
-        Vector3 pos = cameraTransform.transform.localPosition;
-        pos.z += scroll;
-        pos.z = Mathf.Clamp(pos.z, -8, -2);
-        cameraTransform.transform.localPosition = pos;
+        AddZoom(scroll);
+    }
 
+    void AddZoom(float zoom)
+    {
+        Vector3 pos = cameraTransform.transform.localPosition;
+        pos.z += zoom;
+        pos.z = Mathf.Clamp(pos.z, -8, 0);
+        cameraTransform.transform.localPosition = pos;
+    }
+
+    void HandleMovement()
+    {
 
     }
 }
