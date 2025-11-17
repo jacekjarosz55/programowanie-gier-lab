@@ -10,7 +10,7 @@ public class PhysicsBullet : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.AddForce(transform.forward * 10.0f, ForceMode.VelocityChange);
+        rb.AddForce(transform.forward * 20.0f, ForceMode.VelocityChange);
         StartCoroutine(KillCooldown());
     }
 
