@@ -310,7 +310,7 @@ MonoBehaviour:
     m_Reference: {fileID: 7939111882612918348, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   bulletTypes:
   - {fileID: 628735189995550275, guid: f8a746cbafd53454da01131ee4da85f4, type: 3}
-  - {fileID: 628735189995550275, guid: 8a53d6a4b3529e24c818608662c817fa, type: 3}
+  - {fileID: 628735189995550275, guid: 93045e854045a2145a005794778fe1c7, type: 3}
   shootTransform: {fileID: 5167055986523732114}
   sensitivity: 0.5
   walkSpeed: 1

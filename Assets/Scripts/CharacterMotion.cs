@@ -108,7 +108,7 @@ public class CharacterMotion : MonoBehaviour
 
     private void ShootAction_Started(InputAction.CallbackContext context)
     {
-        if (isAiming) 
+        if (isAiming && !isShooting) 
         {
             StartCoroutine(HandleShoot());
         }

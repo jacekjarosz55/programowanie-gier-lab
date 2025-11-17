@@ -20,6 +20,15 @@ public class MagicBullet : MonoBehaviour
         Explode();
         yield return null;
     }
+    private void OnCollisionEnter(Collision collision)
+    {
+        StartCoroutine(HitKillCooldown());
+    }
+    private void Explode()
+    {
+        Instantiate(explosionParticles, transform.position, Quaternion.identity);
+        Destroy(gameObject);
+    }
 
     private IEnumerator KillCooldown()
     {
@@ -29,16 +38,7 @@ public class MagicBullet : MonoBehaviour
     }
 
 
-    private void Explode()
-    {
-        Instantiate(explosionParticles, transform.position, Quaternion.identity);
-        Destroy(gameObject);
-    }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        StartCoroutine(HitKillCooldown());
-    }
 
 
     // Update is called once per frame
