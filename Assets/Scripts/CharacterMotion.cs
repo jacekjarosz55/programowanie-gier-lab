@@ -22,6 +22,7 @@ public class CharacterMotion : MonoBehaviour
     public InputActionProperty aimAction;
     public InputActionProperty zoomAction;
     public InputActionProperty switchBulletAction;
+    public InputActionProperty switchFirstPersonViewAction;
 
     public List<GameObject> bulletTypes;
     private int currentBullet = 0;
@@ -44,11 +45,14 @@ public class CharacterMotion : MonoBehaviour
     private bool isCrouching = false;
     private bool isAiming = false;
     private bool isShooting = false;
+    private bool isFirstPersonView = false;
 
 
     private CharacterController controller;
     private Transform camPivot;
     private Transform cameraTransform;
+    private List<Renderer> thirdPersonRenderers;
+    private List<Renderer> firstPersonRenderers;
 
     private Camera cam;
 
@@ -69,7 +73,6 @@ public class CharacterMotion : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         controller = GetComponent<CharacterController>();
@@ -79,11 +82,34 @@ public class CharacterMotion : MonoBehaviour
         shootAction.action.started += ShootAction_Started;
         aimAction.action.started += AimAction_Started;
         switchBulletAction.action.started += SwitchBulletAction_Started;
+        switchFirstPersonViewAction.action.started += SwitchFirstPersonViewAction_Started;
+        
 
+        thirdPersonRenderers = GameObject.Find("Banana Man").GetComponentsInChildren<Renderer>().ToListPooled();
+        firstPersonRenderers = GameObject.Find("Main Camera").GetComponentsInChildren<Renderer>().ToListPooled();
+
+        firstPersonRenderers.ForEach(x => x.enabled = false);
 
         camPivot = GameObject.Find("Camera Pivot").transform;
         cameraTransform = GameObject.Find("Main Camera").transform;
         cam = GameObject.Find("Main Camera").GetComponent<Camera>();
+    }
+
+    private void SwitchFirstPersonViewAction_Started(InputAction.CallbackContext context)
+    {
+        isFirstPersonView = !isFirstPersonView;
+        if (isFirstPersonView)
+        {
+            cameraTransform.transform.localPosition = Vector3.zero;
+            thirdPersonRenderers.ForEach(x => x.enabled = false);
+            firstPersonRenderers.ForEach(x => x.enabled = true);
+        }
+        else
+        {
+            cameraTransform.transform.localPosition = new Vector3(0, 0, -2);
+            thirdPersonRenderers.ForEach(x => x.enabled = true);
+            firstPersonRenderers.ForEach(x => x.enabled = false);
+        }    
     }
 
     private void SwitchBulletAction_Started(InputAction.CallbackContext context)
@@ -198,9 +224,11 @@ public class CharacterMotion : MonoBehaviour
 
     void AddZoom(float zoom)
     {
+        if (isFirstPersonView) return;
+
         Vector3 pos = cameraTransform.transform.localPosition;
         pos.z += zoom;
-        pos.z = Mathf.Clamp(pos.z, -8, 0);
+        pos.z = Mathf.Clamp(pos.z, -8, -2);
         cameraTransform.transform.localPosition = pos;
     }
 

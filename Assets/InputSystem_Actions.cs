@@ -226,6 +226,15 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""FirstPersonView"",
+                    ""type"": ""Button"",
+                    ""id"": ""92e37b93-8edf-486c-ae61-59eae0143d8c"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -943,6 +952,28 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""action"": ""Switch Bullet Type"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""9db5f948-15f2-4731-8f88-6c261c465c1f"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""FirstPersonView"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""37f9eb59-6f68-4fa2-9e32-4989759565c2"",
+                    ""path"": ""<Keyboard>/v"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""FirstPersonView"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -1270,6 +1301,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_MoveFreeCamera = m_Player.FindAction("Move Free Camera", throwIfNotFound: true);
         m_Player_Aim = m_Player.FindAction("Aim", throwIfNotFound: true);
         m_Player_SwitchBulletType = m_Player.FindAction("Switch Bullet Type", throwIfNotFound: true);
+        m_Player_FirstPersonView = m_Player.FindAction("FirstPersonView", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Submit = m_UI.FindAction("Submit", throwIfNotFound: true);
@@ -1377,6 +1409,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_MoveFreeCamera;
     private readonly InputAction m_Player_Aim;
     private readonly InputAction m_Player_SwitchBulletType;
+    private readonly InputAction m_Player_FirstPersonView;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1449,6 +1482,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @SwitchBulletType => m_Wrapper.m_Player_SwitchBulletType;
         /// <summary>
+        /// Provides access to the underlying input action "Player/FirstPersonView".
+        /// </summary>
+        public InputAction @FirstPersonView => m_Wrapper.m_Player_FirstPersonView;
+        /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
         public InputActionMap Get() { return m_Wrapper.m_Player; }
@@ -1519,6 +1556,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @SwitchBulletType.started += instance.OnSwitchBulletType;
             @SwitchBulletType.performed += instance.OnSwitchBulletType;
             @SwitchBulletType.canceled += instance.OnSwitchBulletType;
+            @FirstPersonView.started += instance.OnFirstPersonView;
+            @FirstPersonView.performed += instance.OnFirstPersonView;
+            @FirstPersonView.canceled += instance.OnFirstPersonView;
         }
 
         /// <summary>
@@ -1575,6 +1615,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @SwitchBulletType.started -= instance.OnSwitchBulletType;
             @SwitchBulletType.performed -= instance.OnSwitchBulletType;
             @SwitchBulletType.canceled -= instance.OnSwitchBulletType;
+            @FirstPersonView.started -= instance.OnFirstPersonView;
+            @FirstPersonView.performed -= instance.OnFirstPersonView;
+            @FirstPersonView.canceled -= instance.OnFirstPersonView;
         }
 
         /// <summary>
@@ -1969,6 +2012,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSwitchBulletType(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "FirstPersonView" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnFirstPersonView(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.

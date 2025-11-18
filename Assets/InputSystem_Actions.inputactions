@@ -140,6 +140,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "FirstPersonView",
+                    "type": "Button",
+                    "id": "92e37b93-8edf-486c-ae61-59eae0143d8c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -855,6 +864,28 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "Switch Bullet Type",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9db5f948-15f2-4731-8f88-6c261c465c1f",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "FirstPersonView",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "37f9eb59-6f68-4fa2-9e32-4989759565c2",
+                    "path": "<Keyboard>/v",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "FirstPersonView",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
