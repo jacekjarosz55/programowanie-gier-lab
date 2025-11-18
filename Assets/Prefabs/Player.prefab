@@ -320,6 +320,18 @@ MonoBehaviour:
       m_SingletonActionBindings: []
       m_Flags: 0
     m_Reference: {fileID: -2291493501519358274, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  sprintAction:
+    m_UseReference: 1
+    m_Action:
+      m_Name: Sprint
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: ed6e4de8-a742-4176-800f-806dc7e10f2c
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: -7471211009204490832, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   bulletTypes:
   - {fileID: 628735189995550275, guid: f8a746cbafd53454da01131ee4da85f4, type: 3}
   - {fileID: 628735189995550275, guid: 93045e854045a2145a005794778fe1c7, type: 3}
@@ -328,6 +340,7 @@ MonoBehaviour:
   walkSpeed: 1
   crouchSpeedFactor: 0.5
   aimSpeedFactor: 0.5
+  sprintSpeedFactor: 1.5
   jumpForce: 20
   jumpAttentuation: 10
 --- !u!33 &2867990988688292203

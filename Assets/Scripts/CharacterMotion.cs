@@ -23,6 +23,7 @@ public class CharacterMotion : MonoBehaviour
     public InputActionProperty zoomAction;
     public InputActionProperty switchBulletAction;
     public InputActionProperty switchFirstPersonViewAction;
+    public InputActionProperty sprintAction;
 
     public List<GameObject> bulletTypes;
     private int currentBullet = 0;
@@ -35,6 +36,7 @@ public class CharacterMotion : MonoBehaviour
 
     public float crouchSpeedFactor = 0.5f;
     public float aimSpeedFactor = 0.5f;
+    public float sprintSpeedFactor = 1.5f;
 
 
     public float jumpForce = 20.0f;
@@ -56,6 +58,7 @@ public class CharacterMotion : MonoBehaviour
 
     private Camera cam;
 
+    private bool isSprinting = false;
     private bool isWalking = false;
 
 
@@ -83,7 +86,9 @@ public class CharacterMotion : MonoBehaviour
         aimAction.action.started += AimAction_Started;
         switchBulletAction.action.started += SwitchBulletAction_Started;
         switchFirstPersonViewAction.action.started += SwitchFirstPersonViewAction_Started;
-        
+        sprintAction.action.started += SprintActionStarted;
+        sprintAction.action.canceled += SprintActionCanceled;
+
 
         thirdPersonRenderers = GameObject.Find("Banana Man").GetComponentsInChildren<Renderer>().ToListPooled();
         firstPersonRenderers = GameObject.Find("Main Camera").GetComponentsInChildren<Renderer>().ToListPooled();
@@ -94,6 +99,19 @@ public class CharacterMotion : MonoBehaviour
         cameraTransform = GameObject.Find("Main Camera").transform;
         cam = GameObject.Find("Main Camera").GetComponent<Camera>();
     }
+
+    private void SprintActionStarted(InputAction.CallbackContext context)
+    {
+        isSprinting = true;
+        animator.SetBool("sprinting", true);
+    }
+    private void SprintActionCanceled(InputAction.CallbackContext context)
+    {
+        isSprinting = false;
+        animator.SetBool("sprinting", false);
+    }
+
+
 
     private void SwitchFirstPersonViewAction_Started(InputAction.CallbackContext context)
     {
@@ -189,7 +207,7 @@ public class CharacterMotion : MonoBehaviour
 
         Vector2 direction = movementAction.action.ReadValue<Vector2>();
         float gravityY = Physics.gravity.y;
-        float moveSpeed = walkSpeed * (isCrouching ? crouchSpeedFactor : 1) * (isAiming ? aimSpeedFactor : 1);
+        float moveSpeed = walkSpeed * (isCrouching ? crouchSpeedFactor : 1) * (isAiming ? aimSpeedFactor : 1) * (isSprinting ? sprintSpeedFactor : 1);
         float zMotion = 0;
         float xMotion = 0;
 
