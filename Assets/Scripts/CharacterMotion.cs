@@ -14,16 +14,17 @@ public class CharacterMotion : MonoBehaviour
 
     public Animator animator;
 
-    public InputActionProperty lookAction;
-    public InputActionProperty movementAction;
-    public InputActionProperty jumpAction;
-    public InputActionProperty crouchAction;
-    public InputActionProperty shootAction;
-    public InputActionProperty aimAction;
-    public InputActionProperty zoomAction;
-    public InputActionProperty switchBulletAction;
-    public InputActionProperty switchFirstPersonViewAction;
-    public InputActionProperty sprintAction;
+    public InputActionReference lookAction;
+    public InputActionReference movementAction;
+    public InputActionReference jumpAction;
+    public InputActionReference crouchAction;
+    public InputActionReference shootAction;
+    public InputActionReference aimAction;
+    public InputActionReference zoomAction;
+    public InputActionReference switchBulletAction;
+    public InputActionReference switchFirstPersonViewAction;
+    public InputActionReference sprintAction;
+    public InputActionReference activateAction;
 
     public List<GameObject> bulletTypes;
     private int currentBullet = 0;
@@ -39,7 +40,7 @@ public class CharacterMotion : MonoBehaviour
     public float sprintSpeedFactor = 1.5f;
 
 
-    public float jumpForce = 20.0f;
+    public float jumpForce = 8.0f;
     public float jumpAttentuation = 10.0f;
     private float jumpVelocity = 0.0f;
 
@@ -50,6 +51,8 @@ public class CharacterMotion : MonoBehaviour
     private bool isFirstPersonView = false;
 
 
+
+    private ItemInteractor interactor;
     private CharacterController controller;
     private Transform camPivot;
     private Transform cameraTransform;
@@ -89,15 +92,32 @@ public class CharacterMotion : MonoBehaviour
         sprintAction.action.started += SprintActionStarted;
         sprintAction.action.canceled += SprintActionCanceled;
 
+        activateAction.action.started += ActivateAction_Started;
+        activateAction.action.canceled += ActivateAction_Canceled;
+
 
         thirdPersonRenderers = GameObject.Find("Banana Man").GetComponentsInChildren<Renderer>().ToListPooled();
         firstPersonRenderers = GameObject.Find("Main Camera").GetComponentsInChildren<Renderer>().ToListPooled();
+
+        interactor = GetComponentInChildren<ItemInteractor>();
 
         firstPersonRenderers.ForEach(x => x.enabled = false);
 
         camPivot = GameObject.Find("Camera Pivot").transform;
         cameraTransform = GameObject.Find("Main Camera").transform;
         cam = GameObject.Find("Main Camera").GetComponent<Camera>();
+    }
+
+
+    private void ActivateAction_Started(InputAction.CallbackContext obj)
+    {
+        interactor.Activate();
+        interactor.StartPickup();
+    }
+    private void ActivateAction_Canceled(InputAction.CallbackContext context)
+    {
+        interactor.Deactivate();
+        interactor.StopPickup();
     }
 
     private void SprintActionStarted(InputAction.CallbackContext context)
