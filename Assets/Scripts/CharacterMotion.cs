@@ -25,7 +25,8 @@ public class CharacterMotion : MonoBehaviour
     public InputActionReference switchFirstPersonViewAction;
     public InputActionReference sprintAction;
     public InputActionReference activateAction;
-
+    public InputActionReference debugAction;
+    public UIManager uiManager;
     public List<GameObject> bulletTypes;
     private int currentBullet = 0;
 
@@ -38,7 +39,8 @@ public class CharacterMotion : MonoBehaviour
     public float crouchSpeedFactor = 0.5f;
     public float aimSpeedFactor = 0.5f;
     public float sprintSpeedFactor = 1.5f;
-
+    public float maxHealth = 100.0f;
+    public float health = 100.0f;
 
     public float jumpForce = 8.0f;
     public float jumpAttentuation = 10.0f;
@@ -59,6 +61,7 @@ public class CharacterMotion : MonoBehaviour
     private List<Renderer> thirdPersonRenderers;
     private List<Renderer> firstPersonRenderers;
 
+
     private Camera cam;
 
     private bool isSprinting = false;
@@ -69,7 +72,7 @@ public class CharacterMotion : MonoBehaviour
     {
         isShooting = true;
         Instantiate(bulletTypes[currentBullet], shootTransform.position, cameraTransform.rotation, null);
-        
+
         yield return new WaitForSeconds(1);
         isShooting = false;
         yield return null;
@@ -91,10 +94,11 @@ public class CharacterMotion : MonoBehaviour
         switchFirstPersonViewAction.action.started += SwitchFirstPersonViewAction_Started;
         sprintAction.action.started += SprintActionStarted;
         sprintAction.action.canceled += SprintActionCanceled;
-
+        
         activateAction.action.started += ActivateAction_Started;
         activateAction.action.canceled += ActivateAction_Canceled;
 
+        debugAction.action.performed += ctx => ChangeHealth(1.0f);
 
         thirdPersonRenderers = GameObject.Find("Banana Man").GetComponentsInChildren<Renderer>().ToListPooled();
         firstPersonRenderers = GameObject.Find("Main Camera").GetComponentsInChildren<Renderer>().ToListPooled();
@@ -102,12 +106,13 @@ public class CharacterMotion : MonoBehaviour
         interactor = GetComponentInChildren<ItemInteractor>();
 
         firstPersonRenderers.ForEach(x => x.enabled = false);
-
+        health = maxHealth;
+        uiManager.MaxHealth = maxHealth;
+        uiManager.CurrentHealth = health;
         camPivot = GameObject.Find("Camera Pivot").transform;
         cameraTransform = GameObject.Find("Main Camera").transform;
         cam = GameObject.Find("Main Camera").GetComponent<Camera>();
     }
-
 
     private void ActivateAction_Started(InputAction.CallbackContext obj)
     {
@@ -115,7 +120,7 @@ public class CharacterMotion : MonoBehaviour
         interactor.StartPickup();
     }
     private void ActivateAction_Canceled(InputAction.CallbackContext context)
-    {
+    {   
         interactor.Deactivate();
         interactor.StopPickup();
     }
@@ -147,7 +152,7 @@ public class CharacterMotion : MonoBehaviour
             cameraTransform.transform.localPosition = new Vector3(0, 0, -2);
             thirdPersonRenderers.ForEach(x => x.enabled = true);
             firstPersonRenderers.ForEach(x => x.enabled = false);
-        }    
+        }
     }
 
     private void SwitchBulletAction_Started(InputAction.CallbackContext context)
@@ -172,7 +177,7 @@ public class CharacterMotion : MonoBehaviour
 
     private void ShootAction_Started(InputAction.CallbackContext context)
     {
-        if (isAiming && !isShooting) 
+        if (isAiming && !isShooting)
         {
             StartCoroutine(HandleShoot());
         }
@@ -180,7 +185,7 @@ public class CharacterMotion : MonoBehaviour
 
     private void CrouchAction_Started(InputAction.CallbackContext context)
     {
-        if(!isAiming && !isShooting && !isJumping && controller.isGrounded)
+        if (!isAiming && !isShooting && !isJumping && controller.isGrounded)
         {
             isCrouching = true;
             animator.SetBool("crouching", true);
@@ -196,7 +201,7 @@ public class CharacterMotion : MonoBehaviour
         }
     }
 
-
+    
     private void JumpAction_Performed(InputAction.CallbackContext obj)
     {
         if (controller.isGrounded && !isJumping && !isCrouching && !isShooting && !isAiming)
@@ -231,7 +236,7 @@ public class CharacterMotion : MonoBehaviour
         float zMotion = 0;
         float xMotion = 0;
 
-        if (!isAiming) { 
+        if (!isAiming) {
             zMotion = direction.y * moveSpeed;
             xMotion = direction.x * moveSpeed;
             isWalking = Math.Abs(xMotion) > 0 || Math.Abs(zMotion) > 0;
@@ -243,10 +248,9 @@ public class CharacterMotion : MonoBehaviour
             animator.SetBool("walking", isWalking);
         }
 
-            float yMotion = jumpVelocity + gravityY;
+        float yMotion = jumpVelocity + gravityY;
         controller.Move((transform.forward * zMotion + transform.right * xMotion + transform.up * yMotion) * Time.deltaTime);
         jumpVelocity = Mathf.MoveTowards(jumpVelocity, 0, jumpAttentuation * Time.deltaTime);
-
 
         Vector2 look = lookAction.action.ReadValue<Vector2>();
         transform.Rotate(Vector3.up, look.x * sensitivity);
@@ -268,6 +272,13 @@ public class CharacterMotion : MonoBehaviour
         pos.z += zoom;
         pos.z = Mathf.Clamp(pos.z, -8, -2);
         cameraTransform.transform.localPosition = pos;
+    }
+    void ChangeHealth(float value)
+    {
+        health -= value;
+        uiManager.CurrentHealth = health;
+
+        Debug.Log("Health: " + health);
     }
 
     void HandleMovement()
