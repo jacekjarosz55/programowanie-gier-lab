@@ -272,6 +272,7 @@ MonoBehaviour:
   sprintAction: {fileID: -7471211009204490832, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   activateAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   debugAction: {fileID: 6023093630809305606, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  uiManager: {fileID: 0}
   bulletTypes:
   - {fileID: 628735189995550275, guid: f8a746cbafd53454da01131ee4da85f4, type: 3}
   - {fileID: 628735189995550275, guid: 93045e854045a2145a005794778fe1c7, type: 3}
@@ -285,6 +286,7 @@ MonoBehaviour:
   health: 100
   jumpForce: 20
   jumpAttentuation: 10
+  baseFov: 90
 --- !u!33 &2867990988688292203
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -809,7 +811,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 23f12f4a2c177f644be8455538d8dcd4, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.223
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 23f12f4a2c177f644be8455538d8dcd4, type: 3}
       propertyPath: m_LocalPosition.y
@@ -817,7 +819,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 23f12f4a2c177f644be8455538d8dcd4, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.663
+      value: 0.451
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 23f12f4a2c177f644be8455538d8dcd4, type: 3}
       propertyPath: m_LocalRotation.w
