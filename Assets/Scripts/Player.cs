@@ -50,7 +50,7 @@ public class Player : MonoBehaviour
     private bool isCrouching = false;
     private bool isAiming = false;
     private bool isShooting = false;
-    private bool isFirstPersonView = false;
+    private bool firstPersonView = true;
 
 
 
@@ -100,18 +100,21 @@ public class Player : MonoBehaviour
 
         debugAction.action.performed += ctx => ChangeHealth(1.0f);
 
-        thirdPersonRenderers = GameObject.Find("Banana Man").GetComponentsInChildren<Renderer>().ToListPooled();
-        firstPersonRenderers = GameObject.Find("Main Camera").GetComponentsInChildren<Renderer>().ToListPooled();
 
         interactor = GetComponentInChildren<ItemInteractor>();
 
-        firstPersonRenderers.ForEach(x => x.enabled = false);
+
         health = maxHealth;
         uiManager.MaxHealth = maxHealth;
         uiManager.CurrentHealth = health;
         camPivot = GameObject.Find("Camera Pivot").transform;
         cameraTransform = GameObject.Find("Main Camera").transform;
         cam = GameObject.Find("Main Camera").GetComponent<Camera>();
+
+        thirdPersonRenderers = GameObject.Find("Banana Man").GetComponentsInChildren<Renderer>().ToListPooled();
+        firstPersonRenderers = GameObject.Find("Main Camera").GetComponentsInChildren<Renderer>().ToListPooled();
+
+        SetFirstPersonView(true);
     }
 
     private void ActivateAction_Started(InputAction.CallbackContext obj)
@@ -137,11 +140,10 @@ public class Player : MonoBehaviour
     }
 
 
-
-    private void SwitchFirstPersonViewAction_Started(InputAction.CallbackContext context)
+    private void SetFirstPersonView(bool firstPersonView)
     {
-        isFirstPersonView = !isFirstPersonView;
-        if (isFirstPersonView)
+        this.firstPersonView = firstPersonView;
+        if (this.firstPersonView)
         {
             cameraTransform.transform.localPosition = Vector3.zero;
             thirdPersonRenderers.ForEach(x => x.enabled = false);
@@ -153,6 +155,12 @@ public class Player : MonoBehaviour
             thirdPersonRenderers.ForEach(x => x.enabled = true);
             firstPersonRenderers.ForEach(x => x.enabled = false);
         }
+    }
+
+
+    private void SwitchFirstPersonViewAction_Started(InputAction.CallbackContext context)
+    {
+        SetFirstPersonView(!firstPersonView);
     }
 
     private void SwitchBulletAction_Started(InputAction.CallbackContext context)
@@ -268,7 +276,7 @@ public class Player : MonoBehaviour
 
     void AddZoom(float zoom)
     {
-        if (isFirstPersonView) return;
+        if (firstPersonView) return;
 
         Vector3 pos = cameraTransform.transform.localPosition;
         pos.z += zoom;
