@@ -93,6 +93,9 @@ public class Player : MonoBehaviour
     private float targetFov;
 
 
+    public Dictionary<string, int> inventory = new();
+
+
     private ItemInteractor interactor;
     private CharacterController controller;
     private Transform camPivot;
@@ -124,15 +127,15 @@ public class Player : MonoBehaviour
         crouchAction.action.started += CrouchAction_Started;
         crouchAction.action.canceled += CrouchAction_Cancelled;
         shootAction.action.started += ShootAction_Started;
-        aimAction.action.started += (ctx) => {StartAiming();};
-        aimAction.action.canceled += (ctx) => {StopAiming();};
         switchBulletAction.action.started += SwitchBulletAction_Started;
         switchFirstPersonViewAction.action.started += SwitchFirstPersonViewAction_Started;
         sprintAction.action.started += SprintActionStarted;
         sprintAction.action.canceled += SprintActionCanceled;
         activateAction.action.started += ActivateAction_Started;
         activateAction.action.canceled += ActivateAction_Canceled;
-        debugAction.action.performed += ctx => ChangeHealth(1.0f);
+        debugAction.action.performed += _ => ChangeHealth(1.0f);
+        aimAction.action.started += _ => StartAiming();
+        aimAction.action.canceled += _ => StopAiming();
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -158,6 +161,12 @@ public class Player : MonoBehaviour
 
         SetFirstPersonView(true);
 
+        // Debug inventory
+        inventory.Add("TEST A", 2);
+        inventory.Add("TEST B", 4);
+
+
+
         health = maxHealth;
         uiManager.MaxHealth = maxHealth;
         uiManager.CurrentHealth = health;
@@ -165,8 +174,8 @@ public class Player : MonoBehaviour
         uiManager.MaxStamina = maxStamina;
         uiManager.CurrentStamina = _stamina;
 
-
         Ammo = baseAmmo;
+        uiManager.Ammo = baseAmmo;
     }
 
     private void ActivateAction_Started(InputAction.CallbackContext obj)
@@ -325,9 +334,6 @@ public class Player : MonoBehaviour
             Stamina += Time.deltaTime * 0.25f;
         }
         Stamina = Mathf.Clamp(Stamina, 0, maxStamina);
-
-
-        Debug.Log(Stamina);
 
         Vector2 direction = movementAction.action.ReadValue<Vector2>();
         float gravityY = Physics.gravity.y;

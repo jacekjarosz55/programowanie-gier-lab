@@ -33,7 +33,6 @@ public class ItemInteractor : MonoBehaviour
 
     private void PickUp()
     {
-        Debug.Log("Picking Up!");
         pickedUp = currentPickUpAble;
         pickedUp.Collider.enabled = false;
         pickedUp.Rigidbody.isKinematic = true;
@@ -41,7 +40,6 @@ public class ItemInteractor : MonoBehaviour
     }
     private void PutDown()
     {
-        Debug.Log("Putting Down!");
         pickedUp.Collider.enabled = true;
         pickedUp.Rigidbody.isKinematic = false;
         pickedUp.Transform.SetParent(null);
