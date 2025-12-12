@@ -8,7 +8,7 @@ using UnityEngine.InputSystem;
 
 
 
-public class CharacterMotion : MonoBehaviour
+public class Player : MonoBehaviour
 {
 
 
@@ -254,6 +254,8 @@ public class CharacterMotion : MonoBehaviour
 
         Vector2 look = lookAction.action.ReadValue<Vector2>();
         transform.Rotate(Vector3.up, look.x * sensitivity);
+
+        Debug.LogAssertion(camPivot != null);
 
         Vector3 newEulerRotation = camPivot.eulerAngles + new Vector3(-look.y * sensitivity, 0f, 0f);
         newEulerRotation.x = ClampAngle(newEulerRotation.x, -90.0f, 90.0f);
