@@ -82,6 +82,18 @@ public class Player : MonoBehaviour
 
     }
 
+    private int _cash;
+    public int Cash
+    {
+        get => _cash;
+        set
+        {
+            _cash = value;
+            uiManager.Cash = value;
+        }
+    }
+
+
 
 
 
