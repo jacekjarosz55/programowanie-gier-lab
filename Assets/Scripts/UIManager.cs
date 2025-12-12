@@ -19,7 +19,7 @@ public class UIManager : MonoBehaviour
     public float MaxStamina { get => maxStamina; set { maxStamina = value; UpdateStamina(); } }
     public float CurrentStamina { get => currentStamina; set { currentStamina = value; UpdateStamina(); } }
 
-    private bool _inventoryShown;
+    private bool _inventoryShown = false;
     public bool InventoryShown
     {
         get => _inventoryShown;

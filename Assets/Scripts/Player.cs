@@ -5,6 +5,7 @@ using NUnit.Framework;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 
 
@@ -26,7 +27,9 @@ public class Player : MonoBehaviour
     public InputActionReference switchFirstPersonViewAction;
     public InputActionReference sprintAction;
     public InputActionReference activateAction;
+    public InputActionReference toggleInventoryAction;
     public InputActionReference debugAction;
+
 #endregion
 
 
@@ -136,6 +139,10 @@ public class Player : MonoBehaviour
         debugAction.action.performed += _ => ChangeHealth(1.0f);
         aimAction.action.started += _ => StartAiming();
         aimAction.action.canceled += _ => StopAiming();
+        toggleInventoryAction.action.started += _ =>
+        {
+            uiManager.InventoryShown = !uiManager.InventoryShown;
+        };
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
