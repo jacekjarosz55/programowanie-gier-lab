@@ -743,6 +743,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e219c813ca341514ab283c105f3b0408, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  inventoryPanel: {fileID: 2135704509}
 --- !u!1 &504195027
 GameObject:
   m_ObjectHideFlags: 0
@@ -839,7 +840,7 @@ GameObject:
   - component: {fileID: 815939728}
   - component: {fileID: 815939727}
   m_Layer: 5
-  m_Name: InventoryHeading (1)
+  m_Name: CombinedValueText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2370,11 +2371,11 @@ PrefabInstance:
     - target: {fileID: 8014782648523352947, guid: 35982669e09117249b78d961324d3049, type: 3}
       propertyPath: 'bulletTypes.Array.data[0]'
       value: 
-      objectReference: {fileID: 628735189995550275, guid: 93045e854045a2145a005794778fe1c7, type: 3}
+      objectReference: {fileID: 628735189995550275, guid: f8a746cbafd53454da01131ee4da85f4, type: 3}
     - target: {fileID: 8014782648523352947, guid: 35982669e09117249b78d961324d3049, type: 3}
       propertyPath: 'bulletTypes.Array.data[1]'
       value: 
-      objectReference: {fileID: 628735189995550275, guid: f8a746cbafd53454da01131ee4da85f4, type: 3}
+      objectReference: {fileID: 628735189995550275, guid: 93045e854045a2145a005794778fe1c7, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -2507,6 +2508,7 @@ SceneRoots:
   m_Roots:
   - {fileID: 410087041}
   - {fileID: 832575519}
+  - {fileID: 413467187}
   - {fileID: 5672975495293759429}
   - {fileID: 2084011037}
   - {fileID: 3655915}
@@ -2514,6 +2516,5 @@ SceneRoots:
   - {fileID: 6985701979650413067}
   - {fileID: 5983756636446630672}
   - {fileID: 236151027634396875}
-  - {fileID: 413467187}
   - {fileID: 504195030}
   - {fileID: 241673739}
