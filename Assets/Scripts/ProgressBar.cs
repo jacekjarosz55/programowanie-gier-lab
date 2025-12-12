@@ -13,7 +13,6 @@ public class ProgressBar : MonoBehaviour
     public void SetProgress(float progress)
     {
         progress = Mathf.Clamp01(progress);
-        Debug.Log($"Setting progress: {progress}");
         innerTransform.sizeDelta = new Vector2(frameTransform.sizeDelta.x * progress, innerTransform.sizeDelta.y);
     }
     // Update is called once per frame

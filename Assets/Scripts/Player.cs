@@ -48,6 +48,8 @@ public class Player : MonoBehaviour
     public float maxHealth = 100.0f;
     public float health = 100.0f;
 
+
+
     public float jumpForce = 8.0f;
     public float jumpAttentuation = 10.0f;
     private float jumpVelocity = 0.0f;
@@ -62,6 +64,21 @@ public class Player : MonoBehaviour
 
     public float baseFov = 90;
     public float aimFovDelta = 30;
+
+    public float maxStamina = 1.0f;
+    public float _stamina = 1.0f;
+    public float Stamina
+    {
+        get => _stamina;
+        set
+        {
+            _stamina = value;
+            uiManager.CurrentStamina = value;
+        }
+
+    }
+
+
 
 
     private int _ammo;
@@ -145,6 +162,10 @@ public class Player : MonoBehaviour
         uiManager.MaxHealth = maxHealth;
         uiManager.CurrentHealth = health;
 
+        uiManager.MaxStamina = maxStamina;
+        uiManager.CurrentStamina = _stamina;
+
+
         Ammo = baseAmmo;
     }
 
@@ -159,16 +180,27 @@ public class Player : MonoBehaviour
         interactor.StopPickup();
     }
 
-    private void SprintActionStarted(InputAction.CallbackContext context)
+    private void StartSprinting()
     {
         StopAiming();
         isSprinting = true;
         animator.SetBool("sprinting", true);
     }
-    private void SprintActionCanceled(InputAction.CallbackContext context)
+
+    private void StopSprinting()
     {
         isSprinting = false;
         animator.SetBool("sprinting", false);
+    }
+
+
+    private void SprintActionStarted(InputAction.CallbackContext context)
+    {
+        StartSprinting();
+    }
+    private void SprintActionCanceled(InputAction.CallbackContext context)
+    {
+        StopSprinting();
     }
 
 
@@ -280,6 +312,23 @@ public class Player : MonoBehaviour
             animator.SetBool("jumping", false);
         }
 
+        if (isSprinting)
+        {
+            Stamina -= Time.deltaTime;
+            if (Stamina <= 0)
+            {
+                StopSprinting();
+            }
+        }
+        else
+        {
+            Stamina += Time.deltaTime * 0.25f;
+        }
+        Stamina = Mathf.Clamp(Stamina, 0, maxStamina);
+
+
+        Debug.Log(Stamina);
+
         Vector2 direction = movementAction.action.ReadValue<Vector2>();
         float gravityY = Physics.gravity.y;
         float moveSpeed = walkSpeed * (isCrouching ? crouchSpeedFactor : 1) * (isAiming ? aimSpeedFactor : 1) * (isSprinting ? sprintSpeedFactor : 1);
@@ -304,7 +353,6 @@ public class Player : MonoBehaviour
         camPivot.eulerAngles = newEulerRotation;
 
         cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFov, Time.deltaTime*8);
-        Debug.Log($"FOV: {cam.fieldOfView}, T: {targetFov}");
 
         float scroll = zoomAction.action.ReadValue<Vector2>().y;
         AddZoom(scroll);
@@ -328,8 +376,5 @@ public class Player : MonoBehaviour
         Debug.Log("Health: " + health);
     }
 
-    void HandleMovement()
-    {
-
-    }
+    
 }

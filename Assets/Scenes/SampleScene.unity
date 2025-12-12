@@ -2002,9 +2002,17 @@ PrefabInstance:
       value: 75
       objectReference: {fileID: 0}
     - target: {fileID: 8014782648523352947, guid: 35982669e09117249b78d961324d3049, type: 3}
+      propertyPath: stamina
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8014782648523352947, guid: 35982669e09117249b78d961324d3049, type: 3}
       propertyPath: uiManager
       value: 
       objectReference: {fileID: 413467188}
+    - target: {fileID: 8014782648523352947, guid: 35982669e09117249b78d961324d3049, type: 3}
+      propertyPath: maxStamina
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8014782648523352947, guid: 35982669e09117249b78d961324d3049, type: 3}
       propertyPath: aimFovDelta
       value: 40
