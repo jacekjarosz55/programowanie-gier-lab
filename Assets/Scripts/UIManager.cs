@@ -87,7 +87,7 @@ public class UIManager : MonoBehaviour
 
         float combinedValue = Inventory.Sum(x=>x.Value);
 
-        inventoryContentText.text += string.Join('\n', Inventory.Select(x=>$"{x.Name} (${x.Value})"));
+        inventoryContentText.text += string.Join('\n', Inventory.Select(x=>$"{x.Name}  ---  ${x.Value}"));
         combinedValueText.text = $"Combined Value: ${combinedValue}";
     }
 

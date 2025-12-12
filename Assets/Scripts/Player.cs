@@ -68,7 +68,8 @@ public class Player : MonoBehaviour
     public float baseFov = 90;
     public float aimFovDelta = 30;
 
-    public float maxStamina = 1.0f;
+    public float staminaRechargeMultiplier = 0.25f;
+    public float maxStamina = 3.0f;
     public float _stamina = 1.0f;
     public float Stamina
     {
@@ -136,13 +137,13 @@ public class Player : MonoBehaviour
         sprintAction.action.canceled += SprintActionCanceled;
         activateAction.action.started += ActivateAction_Started;
         activateAction.action.canceled += ActivateAction_Canceled;
-        debugAction.action.performed += _ => ChangeHealth(1.0f);
         aimAction.action.started += _ => StartAiming();
         aimAction.action.canceled += _ => StopAiming();
         toggleInventoryAction.action.started += _ =>
         {
             uiManager.InventoryShown = !uiManager.InventoryShown;
         };
+        debugAction.action.performed += _ => ChangeHealth(-1.0f);
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -167,11 +168,6 @@ public class Player : MonoBehaviour
         firstPersonRenderers = GameObject.Find("Main Camera").GetComponentsInChildren<Renderer>().ToListPooled();
 
         SetFirstPersonView(true);
-
-        // Debug inventory
-        inventory.Add(new Item {Name="TEST A", Value=8});
-        inventory.Add(new Item {Name="TEST B", Value=2});
-
 
 
         health = maxHealth;
@@ -339,7 +335,7 @@ public class Player : MonoBehaviour
         }
         else
         {
-            Stamina += Time.deltaTime * 0.25f;
+            Stamina += Time.deltaTime * staminaRechargeMultiplier;
         }
         Stamina = Mathf.Clamp(Stamina, 0, maxStamina);
 
@@ -382,12 +378,11 @@ public class Player : MonoBehaviour
         cameraTransform.transform.localPosition = pos;
     }
 
-    void ChangeHealth(float value)
+    public void ChangeHealth(float value)
     {
-        health -= value;
+        health += value;
+        health = Mathf.Clamp(health, 0, maxHealth);
         uiManager.CurrentHealth = health;
-
-        Debug.Log("Health: " + health);
     }
 
     
