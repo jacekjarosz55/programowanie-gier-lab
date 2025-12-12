@@ -54,6 +54,10 @@ public class Player : MonoBehaviour
 
 
 
+    public float baseFov = 90;
+    private float targetFov;
+
+
     private ItemInteractor interactor;
     private CharacterController controller;
     private Transform camPivot;
@@ -89,7 +93,8 @@ public class Player : MonoBehaviour
         crouchAction.action.started += CrouchAction_Started;
         crouchAction.action.canceled += CrouchAction_Cancelled;
         shootAction.action.started += ShootAction_Started;
-        aimAction.action.started += AimAction_Started;
+        aimAction.action.started += (ctx) => {StartAiming();};
+        aimAction.action.canceled += (ctx) => {StopAiming();};
         switchBulletAction.action.started += SwitchBulletAction_Started;
         switchFirstPersonViewAction.action.started += SwitchFirstPersonViewAction_Started;
         sprintAction.action.started += SprintActionStarted;
@@ -111,6 +116,10 @@ public class Player : MonoBehaviour
         cameraTransform = GameObject.Find("Main Camera").transform;
         cam = GameObject.Find("Main Camera").GetComponent<Camera>();
 
+        targetFov = baseFov;
+        cam.fieldOfView = targetFov;
+
+
         thirdPersonRenderers = GameObject.Find("Banana Man").GetComponentsInChildren<Renderer>().ToListPooled();
         firstPersonRenderers = GameObject.Find("Main Camera").GetComponentsInChildren<Renderer>().ToListPooled();
 
@@ -130,6 +139,7 @@ public class Player : MonoBehaviour
 
     private void SprintActionStarted(InputAction.CallbackContext context)
     {
+        StopAiming();
         isSprinting = true;
         animator.SetBool("sprinting", true);
     }
@@ -168,24 +178,32 @@ public class Player : MonoBehaviour
         currentBullet = (currentBullet + 1) % bulletTypes.Count;
     }
 
-    private void AimAction_Started(InputAction.CallbackContext context)
+
+
+    private void StartAiming()
     {
+        if (isAiming) return;
         if (isJumping && isCrouching && isWalking) return;
-        isAiming = !isAiming;
+        isAiming = true;
         animator.SetBool("aiming", isAiming);
-        if (isAiming)
-        {
-            cam.fieldOfView /= 1.25f;
-        }
-        else
-        {
-            cam.fieldOfView *= 1.25f;
-        }
+        targetFov = baseFov - 20;
     }
+
+    private void StopAiming()
+    {
+        if (!isAiming) return;
+        isAiming = false;
+        animator.SetBool("aiming", isAiming);
+        targetFov = baseFov;
+    }
+
+
+
+
 
     private void ShootAction_Started(InputAction.CallbackContext context)
     {
-        if (isAiming && !isShooting)
+        if (!isShooting)
         {
             StartCoroutine(HandleShoot());
         }
@@ -193,8 +211,9 @@ public class Player : MonoBehaviour
 
     private void CrouchAction_Started(InputAction.CallbackContext context)
     {
-        if (!isAiming && !isShooting && !isJumping && controller.isGrounded)
+        if (!isShooting && !isJumping && controller.isGrounded)
         {
+            StopAiming();
             isCrouching = true;
             animator.SetBool("crouching", true);
         }
@@ -244,17 +263,10 @@ public class Player : MonoBehaviour
         float zMotion = 0;
         float xMotion = 0;
 
-        if (!isAiming) {
-            zMotion = direction.y * moveSpeed;
-            xMotion = direction.x * moveSpeed;
-            isWalking = Math.Abs(xMotion) > 0 || Math.Abs(zMotion) > 0;
-            animator.SetBool("walking", isWalking);
-        }
-        else
-        {
-            isWalking = false;
-            animator.SetBool("walking", isWalking);
-        }
+        zMotion = direction.y * moveSpeed;
+        xMotion = direction.x * moveSpeed;
+        isWalking = Math.Abs(xMotion) > 0 || Math.Abs(zMotion) > 0;
+        animator.SetBool("walking", isWalking);
 
         float yMotion = jumpVelocity + gravityY;
         controller.Move((transform.forward * zMotion + transform.right * xMotion + transform.up * yMotion) * Time.deltaTime);
@@ -263,12 +275,13 @@ public class Player : MonoBehaviour
         Vector2 look = lookAction.action.ReadValue<Vector2>();
         transform.Rotate(Vector3.up, look.x * sensitivity);
 
-        Debug.LogAssertion(camPivot != null);
 
         Vector3 newEulerRotation = camPivot.eulerAngles + new Vector3(-look.y * sensitivity, 0f, 0f);
         newEulerRotation.x = ClampAngle(newEulerRotation.x, -90.0f, 90.0f);
         camPivot.eulerAngles = newEulerRotation;
 
+        cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFov, Time.deltaTime*8);
+        Debug.Log($"FOV: {cam.fieldOfView}, T: {targetFov}");
 
         float scroll = zoomAction.action.ReadValue<Vector2>().y;
         AddZoom(scroll);
@@ -283,6 +296,7 @@ public class Player : MonoBehaviour
         pos.z = Mathf.Clamp(pos.z, -8, -2);
         cameraTransform.transform.localPosition = pos;
     }
+
     void ChangeHealth(float value)
     {
         health -= value;
