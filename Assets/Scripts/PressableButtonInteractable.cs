@@ -13,7 +13,7 @@ public class PressableButtonInteractable : MonoBehaviour, IInteractable
 
     public GameObject GameObject => gameObject;
 
-    public void OnActivate()
+    public void OnActivate(Player player)
     {
         Debug.Log("[Button] Activate!");
         activated = !activated;
@@ -21,18 +21,18 @@ public class PressableButtonInteractable : MonoBehaviour, IInteractable
         
     }
 
-    public void OnDeactivate()
+    public void OnDeactivate(Player player)
     {
         
     }
 
-    public void OnFocusEnter()
+    public void OnFocusEnter(Player player)
     {
         Debug.Log("[Button] Focused!");
        
     }
 
-    public void OnFocusLeave()
+    public void OnFocusLeave(Player player)
     {
         Debug.Log("[Button] De-Focused!");
     }

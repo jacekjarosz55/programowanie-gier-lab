@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class UIManager : MonoBehaviour
 {
@@ -7,6 +10,9 @@ public class UIManager : MonoBehaviour
     private ProgressBar staminaBar;
     private TMP_Text ammoText;
     public GameObject inventoryPanel;
+
+    private TMP_Text inventoryContentText;
+    private TMP_Text combinedValueText;
 
     private float maxStamina;
     private float currentStamina;
@@ -19,6 +25,18 @@ public class UIManager : MonoBehaviour
     public float MaxStamina { get => maxStamina; set { maxStamina = value; UpdateStamina(); } }
     public float CurrentStamina { get => currentStamina; set { currentStamina = value; UpdateStamina(); } }
 
+
+
+    private List<Item> _inventory;
+    public List<Item> Inventory
+    {
+        get => _inventory;
+        set
+        {
+            _inventory = value;
+        }
+    }
+
     private bool _inventoryShown = false;
     public bool InventoryShown
     {
@@ -27,6 +45,9 @@ public class UIManager : MonoBehaviour
         {
             _inventoryShown = value;
             inventoryPanel.SetActive(value);
+            if (InventoryShown && Inventory != null) {
+                UpdateInventoryContent();
+            }
         }
     }
 
@@ -59,6 +80,15 @@ public class UIManager : MonoBehaviour
 
 
 
+    private void UpdateInventoryContent() {
+        inventoryContentText = GameObject.Find("InventoryContentText").GetComponent<TMP_Text>();
+        combinedValueText = GameObject.Find("CombinedValueText").GetComponent<TMP_Text>();
+        inventoryContentText.text = "";
 
+        float combinedValue = Inventory.Sum(x=>x.Value);
+
+        inventoryContentText.text += string.Join('\n', Inventory.Select(x=>$"{x.Name} (${x.Value})"));
+        combinedValueText.text = $"Combined Value: ${combinedValue}";
+    }
 
 }

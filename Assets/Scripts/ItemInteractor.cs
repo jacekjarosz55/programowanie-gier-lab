@@ -18,6 +18,7 @@ public class ItemInteractor : MonoBehaviour
 
     public IInteractable CurrentInteracted => currentInteracted;
     public IPickupAble PickedUp => pickedUp;
+    public Player player;
 
     public float maxDistance = 1f;
     private int layerMask;
@@ -67,12 +68,12 @@ public class ItemInteractor : MonoBehaviour
     public void Activate()
     {
         if (currentInteracted == null) return;
-        currentInteracted.OnActivate();
+        currentInteracted.OnActivate(player);
     } 
     public void Deactivate()
     {
         if (currentInteracted == null) return;
-        currentInteracted.OnDeactivate();
+        currentInteracted.OnDeactivate(player);
     } 
 
     // Update is called once per frame
@@ -94,7 +95,7 @@ public class ItemInteractor : MonoBehaviour
 
                 if (currentInteracted != interacted)
                 {
-                    interacted.OnFocusEnter();
+                    interacted.OnFocusEnter(player);
                 }
                 currentInteracted = interacted;                
             }
@@ -112,7 +113,7 @@ public class ItemInteractor : MonoBehaviour
         {
             if (currentInteracted != null)
             {
-                currentInteracted.OnFocusLeave();
+                currentInteracted.OnFocusLeave(player);
             }
             currentInteracted = null;
             currentPickUpAble = null;

@@ -96,7 +96,7 @@ public class Player : MonoBehaviour
     private float targetFov;
 
 
-    public Dictionary<string, int> inventory = new();
+    public List<Item> inventory = new();
 
 
     private ItemInteractor interactor;
@@ -169,8 +169,8 @@ public class Player : MonoBehaviour
         SetFirstPersonView(true);
 
         // Debug inventory
-        inventory.Add("TEST A", 2);
-        inventory.Add("TEST B", 4);
+        inventory.Add(new Item {Name="TEST A", Value=8});
+        inventory.Add(new Item {Name="TEST B", Value=2});
 
 
 
@@ -183,6 +183,7 @@ public class Player : MonoBehaviour
 
         Ammo = baseAmmo;
         uiManager.Ammo = baseAmmo;
+        uiManager.Inventory = inventory;
     }
 
     private void ActivateAction_Started(InputAction.CallbackContext obj)
