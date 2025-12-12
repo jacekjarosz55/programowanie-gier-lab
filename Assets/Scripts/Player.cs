@@ -14,6 +14,7 @@ public class Player : MonoBehaviour
 
     public Animator animator;
 
+#region InputAction
     public InputActionReference lookAction;
     public InputActionReference movementAction;
     public InputActionReference jumpAction;
@@ -26,11 +27,16 @@ public class Player : MonoBehaviour
     public InputActionReference sprintAction;
     public InputActionReference activateAction;
     public InputActionReference debugAction;
+#endregion
+
+
     public UIManager uiManager;
     public List<GameObject> bulletTypes;
     private int currentBullet = 0;
 
     public Transform shootTransform;
+
+    public int baseAmmo = 30;
 
 
     public float sensitivity = 1.0f;
@@ -55,6 +61,18 @@ public class Player : MonoBehaviour
 
 
     public float baseFov = 90;
+    public float aimFovDelta = 30;
+
+
+    private int _ammo;
+    public int Ammo { 
+        get => _ammo;
+        set { 
+            _ammo = value;
+            uiManager.Ammo = value;
+        }
+    }
+
     private float targetFov;
 
 
@@ -74,6 +92,7 @@ public class Player : MonoBehaviour
 
     private IEnumerator HandleShoot()
     {
+        Ammo--;
         isShooting = true;
         Instantiate(bulletTypes[currentBullet], shootTransform.position, cameraTransform.rotation, null);
 
@@ -82,13 +101,8 @@ public class Player : MonoBehaviour
         yield return null;
     }
 
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void SetupInputActions()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-        controller = GetComponent<CharacterController>();
         jumpAction.action.performed += JumpAction_Performed;
         crouchAction.action.started += CrouchAction_Started;
         crouchAction.action.canceled += CrouchAction_Cancelled;
@@ -99,19 +113,22 @@ public class Player : MonoBehaviour
         switchFirstPersonViewAction.action.started += SwitchFirstPersonViewAction_Started;
         sprintAction.action.started += SprintActionStarted;
         sprintAction.action.canceled += SprintActionCanceled;
-        
         activateAction.action.started += ActivateAction_Started;
         activateAction.action.canceled += ActivateAction_Canceled;
-
         debugAction.action.performed += ctx => ChangeHealth(1.0f);
+    }
 
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
 
+        SetupInputActions();
+
+        controller = GetComponent<CharacterController>();
         interactor = GetComponentInChildren<ItemInteractor>();
 
-
-        health = maxHealth;
-        uiManager.MaxHealth = maxHealth;
-        uiManager.CurrentHealth = health;
         camPivot = GameObject.Find("Camera Pivot").transform;
         cameraTransform = GameObject.Find("Main Camera").transform;
         cam = GameObject.Find("Main Camera").GetComponent<Camera>();
@@ -119,11 +136,16 @@ public class Player : MonoBehaviour
         targetFov = baseFov;
         cam.fieldOfView = targetFov;
 
-
         thirdPersonRenderers = GameObject.Find("Banana Man").GetComponentsInChildren<Renderer>().ToListPooled();
         firstPersonRenderers = GameObject.Find("Main Camera").GetComponentsInChildren<Renderer>().ToListPooled();
 
         SetFirstPersonView(true);
+
+        health = maxHealth;
+        uiManager.MaxHealth = maxHealth;
+        uiManager.CurrentHealth = health;
+
+        Ammo = baseAmmo;
     }
 
     private void ActivateAction_Started(InputAction.CallbackContext obj)
@@ -186,7 +208,7 @@ public class Player : MonoBehaviour
         if (isJumping && isCrouching && isWalking) return;
         isAiming = true;
         animator.SetBool("aiming", isAiming);
-        targetFov = baseFov - 20;
+        targetFov = baseFov - aimFovDelta;
     }
 
     private void StopAiming()
@@ -203,9 +225,10 @@ public class Player : MonoBehaviour
 
     private void ShootAction_Started(InputAction.CallbackContext context)
     {
-        if (!isShooting)
+        if (!isShooting && Ammo > 0)
         {
             StartCoroutine(HandleShoot());
+
         }
     }
 
