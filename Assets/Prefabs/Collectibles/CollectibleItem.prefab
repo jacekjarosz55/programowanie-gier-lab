@@ -125,6 +125,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d15872676be6476afa21631543321084, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  spawnOnPickup: {fileID: 1403605179419832080, guid: dbe4101c6a993eacd837122e2c2324de, type: 3}
+  soundToPlay: {fileID: 0}
   Name: 
   Value: 0
 --- !u!1 &6527408760223482682

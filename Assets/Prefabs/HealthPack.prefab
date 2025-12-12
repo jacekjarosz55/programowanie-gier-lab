@@ -124,4 +124,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50740cd49bcab8a09b00abd667e8dd29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthItemInteractable
+  spawnOnPickup: {fileID: 3143100698218136296, guid: ba3e44b93f1d3ab169b98aac76b1a669, type: 3}
   healthDelta: 10

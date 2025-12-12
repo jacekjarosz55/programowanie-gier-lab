@@ -56,6 +56,10 @@ PrefabInstance:
       propertyPath: Value
       value: 100
       objectReference: {fileID: 0}
+    - target: {fileID: 5863740172376340917, guid: c1a8003f304327c0f939997051be41bf, type: 3}
+      propertyPath: spawnOnPickup
+      value: 
+      objectReference: {fileID: 2828676955295769019, guid: d77e0254bd9c4958ca77861562ef4a90, type: 3}
     - target: {fileID: 6368906274574395973, guid: c1a8003f304327c0f939997051be41bf, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
