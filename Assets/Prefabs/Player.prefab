@@ -271,12 +271,14 @@ MonoBehaviour:
   switchFirstPersonViewAction: {fileID: -2291493501519358274, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   sprintAction: {fileID: -7471211009204490832, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   activateAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  toggleInventoryAction: {fileID: -798242621965700795, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   debugAction: {fileID: 6023093630809305606, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   uiManager: {fileID: 0}
   bulletTypes:
   - {fileID: 628735189995550275, guid: f8a746cbafd53454da01131ee4da85f4, type: 3}
   - {fileID: 628735189995550275, guid: 93045e854045a2145a005794778fe1c7, type: 3}
   shootTransform: {fileID: 5167055986523732114}
+  baseAmmo: 30
   sensitivity: 0.5
   walkSpeed: 1
   crouchSpeedFactor: 0.5
@@ -287,6 +289,9 @@ MonoBehaviour:
   jumpForce: 20
   jumpAttentuation: 10
   baseFov: 90
+  aimFovDelta: 30
+  maxStamina: 1
+  _stamina: 1
 --- !u!33 &2867990988688292203
 MeshFilter:
   m_ObjectHideFlags: 0

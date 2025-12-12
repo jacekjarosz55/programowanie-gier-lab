@@ -6,7 +6,7 @@ public class UIManager : MonoBehaviour
     private ProgressBar healthBar;
     private ProgressBar staminaBar;
     private TMP_Text ammoText;
-    private GameObject inventoryPanel;
+    public GameObject inventoryPanel;
 
     private float maxStamina;
     private float currentStamina;
@@ -39,7 +39,6 @@ public class UIManager : MonoBehaviour
         healthBar = GameObject.Find("HealthBar").GetComponent<ProgressBar>();
         staminaBar = GameObject.Find("StaminaBar").GetComponent<ProgressBar>();
         ammoText = GameObject.Find("AmmoText").GetComponent<TMP_Text>();
-        inventoryPanel = GameObject.Find("InventoryPanel");
     }
 
     private void UpdateHealth()
