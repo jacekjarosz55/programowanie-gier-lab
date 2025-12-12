@@ -16,12 +16,11 @@ public class Target : MonoBehaviour
         
     }
 
-
-    private void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider other)
     {
-        //hit = true;
-        meshRenderer.material = hitMaterial;
+        meshRenderer.material = hitMaterial;        
     }
+
 
     // Update is called once per frame
     void Update()
