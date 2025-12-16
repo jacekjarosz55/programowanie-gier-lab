@@ -18,6 +18,7 @@ public class CollectibleSound : MonoBehaviour
     {
         audioSource.Play();
         yield return new WaitForSeconds(audioSource.clip.length);
+        Destroy(gameObject);
     }
 
 }
