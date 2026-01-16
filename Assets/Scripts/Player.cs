@@ -63,6 +63,7 @@ public class Player : MonoBehaviour
     private bool isShooting = false;
     private bool firstPersonView = true;
 
+    public float shootCooldown = 0.5f;
 
 
     public float baseFov = 90;
@@ -132,9 +133,19 @@ public class Player : MonoBehaviour
         isShooting = true;
         Instantiate(bulletTypes[currentBullet], shootTransform.position, cameraTransform.rotation, null);
 
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(shootCooldown);
         isShooting = false;
         yield return null;
+    }
+
+    private bool _inInventory = false;
+    private bool InInventory {
+        get => _inInventory;
+        set
+        {
+            _inInventory = value;
+            uiManager.InventoryShown = value;
+        }
     }
 
     private void SetupInputActions()
@@ -153,7 +164,7 @@ public class Player : MonoBehaviour
         aimAction.action.canceled += _ => StopAiming();
         toggleInventoryAction.action.started += _ =>
         {
-            uiManager.InventoryShown = !uiManager.InventoryShown;
+            InInventory = !InInventory;
         };
         debugAction.action.performed += _ => ChangeHealth(-1.0f);
     }
@@ -177,7 +188,7 @@ public class Player : MonoBehaviour
         cam.fieldOfView = targetFov;
 
         thirdPersonRenderers = GameObject.Find("Banana Man").GetComponentsInChildren<Renderer>().ToListPooled();
-        firstPersonRenderers = GameObject.Find("Main Camera").GetComponentsInChildren<Renderer>().ToListPooled();
+        firstPersonRenderers = GameObject.Find("Camera Pivot").GetComponentsInChildren<Renderer>().ToListPooled();
 
         SetFirstPersonView(true);
 
@@ -337,7 +348,18 @@ public class Player : MonoBehaviour
             animator.SetBool("jumping", false);
         }
 
-        if (isSprinting)
+
+        Vector2 direction = movementAction.action.ReadValue<Vector2>();
+        float gravityY = Physics.gravity.y;
+        float moveSpeed = walkSpeed * (isCrouching ? crouchSpeedFactor : 1) * (isAiming ? aimSpeedFactor : 1) * (isSprinting ? sprintSpeedFactor : 1);
+        float zMotion = 0;
+        float xMotion = 0;
+        zMotion = direction.y * moveSpeed;
+        xMotion = direction.x * moveSpeed;
+        isWalking = Math.Abs(xMotion) > 0 || Math.Abs(zMotion) > 0;
+        animator.SetBool("walking", isWalking);
+
+        if (isSprinting && isWalking)
         {
             Stamina -= Time.deltaTime;
             if (Stamina <= 0)
@@ -351,31 +373,22 @@ public class Player : MonoBehaviour
         }
         Stamina = Mathf.Clamp(Stamina, 0, maxStamina);
 
-        Vector2 direction = movementAction.action.ReadValue<Vector2>();
-        float gravityY = Physics.gravity.y;
-        float moveSpeed = walkSpeed * (isCrouching ? crouchSpeedFactor : 1) * (isAiming ? aimSpeedFactor : 1) * (isSprinting ? sprintSpeedFactor : 1);
-        float zMotion = 0;
-        float xMotion = 0;
-
-        zMotion = direction.y * moveSpeed;
-        xMotion = direction.x * moveSpeed;
-        isWalking = Math.Abs(xMotion) > 0 || Math.Abs(zMotion) > 0;
-        animator.SetBool("walking", isWalking);
-
         float yMotion = jumpVelocity + gravityY;
         controller.Move((transform.forward * zMotion + transform.right * xMotion + transform.up * yMotion) * Time.deltaTime);
         jumpVelocity = Mathf.MoveTowards(jumpVelocity, 0, jumpAttentuation * Time.deltaTime);
 
+        HandleMouse();
+    }
+
+    private void HandleMouse()
+    {
+        if (InInventory) return;
         Vector2 look = lookAction.action.ReadValue<Vector2>();
         transform.Rotate(Vector3.up, look.x * sensitivity);
-
-
         Vector3 newEulerRotation = camPivot.eulerAngles + new Vector3(-look.y * sensitivity, 0f, 0f);
         newEulerRotation.x = ClampAngle(newEulerRotation.x, -90.0f, 90.0f);
         camPivot.eulerAngles = newEulerRotation;
-
-        cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFov, Time.deltaTime*8);
-
+        cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, targetFov, Time.deltaTime * 8);
         float scroll = zoomAction.action.ReadValue<Vector2>().y;
         AddZoom(scroll);
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -58,7 +59,29 @@ public class UIManager : MonoBehaviour
             if (InventoryShown && Inventory != null) {
                 UpdateInventoryContent();
             }
+
+
+            if (_inventoryShown)
+            {
+                ShowMouse();
+            }
+            else
+            {
+                HideMouse();
+            }
         }
+    }
+    
+    private void HideMouse()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+
+    private void ShowMouse()
+    {
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = true;
     }
 
     private int ammo;
