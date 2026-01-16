@@ -7,6 +7,6 @@ public class CollectibleItemInteractable : SimpleInteractable
 
     public override void Activate(Player player)
     {
-        player.inventory.Add(new Item{Name=Name, Value=Value});
+        player.AddItem(new Item{Name=Name, Value=Value});
     }
 }

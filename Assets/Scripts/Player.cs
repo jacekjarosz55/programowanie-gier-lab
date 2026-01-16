@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -11,7 +12,7 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-
+    private bool dead = false;
 
     public Animator animator;
 
@@ -29,6 +30,13 @@ public class Player : MonoBehaviour
     public InputActionReference activateAction;
     public InputActionReference toggleInventoryAction;
     public InputActionReference debugAction;
+
+
+
+    public InputActionReference selectItem1Action;
+    public InputActionReference selectItem2Action;
+    public InputActionReference selectItem3Action;
+    public InputActionReference selectItem4Action;
 
 #endregion
 
@@ -111,6 +119,7 @@ public class Player : MonoBehaviour
 
 
     public List<Item> inventory = new();
+    public Item[] hotbarItems = new Item[4];
 
 
     private ItemInteractor interactor;
@@ -126,6 +135,11 @@ public class Player : MonoBehaviour
     private bool isSprinting = false;
     private bool isWalking = false;
 
+
+    public void AddItem(Item item)
+    {
+        inventory.Add(item);
+    }
 
     private IEnumerator HandleShoot()
     {
@@ -145,6 +159,10 @@ public class Player : MonoBehaviour
         {
             _inInventory = value;
             uiManager.InventoryShown = value;
+            if (_inInventory == false && uiManager.InShop)
+            {
+                uiManager.InShop = false;
+            }
         }
     }
 
@@ -167,6 +185,34 @@ public class Player : MonoBehaviour
             InInventory = !InInventory;
         };
         debugAction.action.performed += _ => ChangeHealth(-1.0f);
+
+
+        selectItem1Action.action.performed += _ => UseItem(0);
+        selectItem2Action.action.performed += _ => UseItem(1);
+        selectItem3Action.action.performed += _ => UseItem(2);
+        selectItem4Action.action.performed += _ => UseItem(3);
+
+        debugAction.action.performed += _ => EnterShop();
+    }
+
+    private void UseItem(int i)
+    {
+        if (hotbarItems[i] == null) return;
+        var item = hotbarItems[i];
+        var result = item.OnUse(this);
+        if (result == ItemUseResult.Consume)
+        {
+            uiManager.HotbarItems = hotbarItems;
+            inventory.Remove(item);
+            if (!inventory.Contains(item))
+            {
+                hotbarItems[i] = null;
+            }
+            if(InInventory)
+            {
+                uiManager.ForceInventoryUpdate();
+            }
+        }
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -192,6 +238,39 @@ public class Player : MonoBehaviour
 
         SetFirstPersonView(true);
 
+        uiManager.onItemBought = (item) => TryBuyItem(item);
+        uiManager.onItemAssign = (item, slot) =>
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (hotbarItems[i] == item)
+                {
+                    hotbarItems[i] = null;
+                }
+            }
+            Debug.Log($"Item {item.Name} -> slot {slot}");
+            hotbarItems[slot] = item;
+            uiManager.HotbarItems = hotbarItems;
+        };
+        uiManager.onItemSold = (item) =>
+        {
+            Debug.Log($"Item {item.Name} -> sold (${item.Value})");
+            Cash += (int)item.Value;
+            inventory.Remove(item);
+            if (!inventory.Contains(item))
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    if (hotbarItems[i] == item)
+                    {
+                        hotbarItems[i] = null;
+                    }
+                }
+            }
+            uiManager.ForceInventoryUpdate();
+        };
+
+
 
         health = maxHealth;
         uiManager.MaxHealth = maxHealth;
@@ -204,6 +283,15 @@ public class Player : MonoBehaviour
         uiManager.Ammo = baseAmmo;
         uiManager.Inventory = inventory;
     }
+
+    private void TryBuyItem(Item item)
+    {
+        if (Cash < item.Value) return;
+        Cash -= (int)item.Value;
+        inventory.Add(item);
+        uiManager.ForceInventoryUpdate();
+    }
+
 
     private void ActivateAction_Started(InputAction.CallbackContext obj)
     {
@@ -293,7 +381,7 @@ public class Player : MonoBehaviour
 
     private void ShootAction_Started(InputAction.CallbackContext context)
     {
-        if (!isShooting && Ammo > 0)
+        if (!isShooting && Ammo > 0 && !InInventory)
         {
             StartCoroutine(HandleShoot());
 
@@ -342,6 +430,7 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (dead) return;
         if (isJumping && controller.isGrounded && jumpVelocity == 0)
         {
             isJumping = false;
@@ -407,7 +496,21 @@ public class Player : MonoBehaviour
     {
         health += value;
         health = Mathf.Clamp(health, 0, maxHealth);
+        if (health <= 0)
+        {
+            dead = true;
+            uiManager.ShowGameOver();
+        } 
         uiManager.CurrentHealth = health;
+
+
+    }
+
+
+    public void EnterShop()
+    {
+        InInventory = true;
+        uiManager.InShop = true;
     }
 
     

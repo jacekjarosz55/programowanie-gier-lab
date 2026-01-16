@@ -274,6 +274,10 @@ MonoBehaviour:
   activateAction: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   toggleInventoryAction: {fileID: -798242621965700795, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   debugAction: {fileID: 6023093630809305606, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  selectItem1Action: {fileID: -7348503830876794309, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  selectItem2Action: {fileID: -4604992997993072179, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  selectItem3Action: {fileID: 7907489667079563575, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  selectItem4Action: {fileID: 3209033244854631609, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   uiManager: {fileID: 0}
   bulletTypes:
   - {fileID: 628735189995550275, guid: f8a746cbafd53454da01131ee4da85f4, type: 3}
@@ -289,8 +293,10 @@ MonoBehaviour:
   health: 100
   jumpForce: 20
   jumpAttentuation: 10
+  shootCooldown: 0.5
   baseFov: 90
   aimFovDelta: 30
+  staminaRechargeMultiplier: 0.25
   maxStamina: 1
   _stamina: 1
 --- !u!33 &2867990988688292203

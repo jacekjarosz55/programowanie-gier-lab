@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -7,16 +8,22 @@ public class ShopUI : MonoBehaviour
 
     public GameObject shopItemPanel;
 
+    public Action<Item> onBuyClicked;
+
+
+
     private List<Item> items = new()
     {
-        new() {
-            Name = "Special object",
-            Value = 200
+        new AmmoPackItem()
+        {
+            Name = "Ammo Pack (20)",
+            Value = 40
         },
-        new() {
-            Name = "cheap idk wtf object",
-            Value = 20
-        }
+        new PoisonItem()
+        {
+            Name = "Poison (-20)",
+            Value = 30
+        },
     };
 
     private GameObject shopViewportContent;
@@ -24,7 +31,10 @@ public class ShopUI : MonoBehaviour
 
     private void OnPress(Item item)
     {
-        Debug.Log($"Pressed on item: {item.Name}, value: {item.Value}");
+        if (onBuyClicked != null)
+        {
+            onBuyClicked(item);
+        }
     }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -37,7 +47,8 @@ public class ShopUI : MonoBehaviour
             GameObject shopItem = Instantiate(shopItemPanel, shopViewportContent.transform);
             ShopItemPanel shopItemComponent  = shopItem.GetComponent<ShopItemPanel>();  
             shopItemComponent.Item = item;
-            shopItemComponent.OnPressAction = () => OnPress(item); }
+            shopItemComponent.OnPressAction = () => OnPress(item); 
+        }
 
         
 

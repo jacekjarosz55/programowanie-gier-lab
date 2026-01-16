@@ -1,19 +1,31 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
+using Mono.Cecil;
 using TMPro;
+using UnityEditor.Profiling.Memory.Experimental;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class UIManager : MonoBehaviour
 {
+
+
+    public Action<Item> onItemSold;
+    public Action<Item> onItemBought;
+    public Action<Item,int> onItemAssign;
+
+    private HotbarSlot[] hotbarSlots;
+
     private ProgressBar healthBar;
     private ProgressBar staminaBar;
     private TMP_Text ammoText;
     public GameObject inventoryPanel;
+    public GameObject shopPanel;
+    public GameObject gameOverScreen;
 
-    private TMP_Text inventoryContentText;
+    //private TMP_Text inventoryContentText;
+    public RectTransform inventoryContent;
+    public GameObject inventoryItemEntry;
     private TMP_Text combinedValueText;
     private TMP_Text cashText;
 
@@ -39,6 +51,7 @@ public class UIManager : MonoBehaviour
     }
 
     private List<Item> _inventory;
+
     public List<Item> Inventory
     {
         get => _inventory;
@@ -47,6 +60,48 @@ public class UIManager : MonoBehaviour
             _inventory = value;
         }
     }
+
+    private Item[] _hotbarItems = new Item[4];
+
+    public Item[] HotbarItems
+    {
+        get => _hotbarItems;
+        set
+        {
+            _hotbarItems = value;
+            UpdateHotbar();
+        }
+    }
+
+
+    private void UpdateHotbar()
+    {
+        for (int i = 0; i < hotbarSlots.Length; i++)
+        {
+            hotbarSlots[i].Item = _hotbarItems[i];
+        }
+    }
+
+    private bool _inShop = false;
+    public bool InShop
+    {
+        get => _inShop;
+        set {
+            _inShop = value;
+            shopPanel.SetActive(value);
+            shopPanel.GetComponent<ShopUI>().onBuyClicked = (Item item) =>
+            {
+                if (onItemBought != null) {
+                    onItemBought(item);
+                }
+            };
+            
+            InventoryShown = value;
+        }
+
+    }
+
+
 
     private bool _inventoryShown = false;
     public bool InventoryShown
@@ -93,6 +148,12 @@ public class UIManager : MonoBehaviour
         healthBar = GameObject.Find("HealthBar").GetComponent<ProgressBar>();
         staminaBar = GameObject.Find("StaminaBar").GetComponent<ProgressBar>();
         ammoText = GameObject.Find("AmmoText").GetComponent<TMP_Text>();
+
+        hotbarSlots = new HotbarSlot[4];
+        for (int i = 0; i < 4; i++)
+        {
+            hotbarSlots[i] = GameObject.Find($"HotbarSlot{i+1}").GetComponent<HotbarSlot>();
+        }
     }
 
     private void UpdateHealth()
@@ -112,14 +173,53 @@ public class UIManager : MonoBehaviour
     }
 
 
+
+    public void ForceInventoryUpdate()
+    {
+        UpdateInventoryContent();
+    }
+
     private void UpdateInventoryContent() {
-        inventoryContentText = GameObject.Find("InventoryContentText").GetComponent<TMP_Text>();
+        //inventoryContentText = GameObject.Find("InventoryContentText").GetComponent<TMP_Text>();
+        foreach (RectTransform entry in inventoryContent)
+        {
+            Destroy(entry.gameObject);
+        }
+
         combinedValueText = GameObject.Find("CombinedValueText").GetComponent<TMP_Text>();
         cashText = GameObject.Find("CashText").GetComponent<TMP_Text>();
-        inventoryContentText.text = "";
+        //inventoryContentText.text = "";
+        //inventoryContentText.text += string.Join('\n', Inventory.Select(x=>$"{x.Name}  ---  ${x.Value}"));
+        /*
+        while(inventoryContent.childCount > 0) {
+            var entry = inventoryContent.GetChild(0);
+            Destroy(entry);
+        }
+        */
+
+        foreach (var item in Inventory)
+        {
+            var entryItem = item;
+            GameObject entryObj = Instantiate(inventoryItemEntry, inventoryContent);
+            var entry = entryObj.GetComponent<InventoryItemEntry>();
+            entry.onSell = (item) => {
+                onItemSold(item);
+            };
+            entry.onSlotAssigned = (item, slot) =>
+            {
+                onItemAssign(item, slot);
+            };
+            entry.item = entryItem;
+            entry.sellingEnabled = InShop;
+            entry.Initialize();
+        }
+
         float combinedValue = Inventory.Sum(x=>x.Value);
-        inventoryContentText.text += string.Join('\n', Inventory.Select(x=>$"{x.Name}  ---  ${x.Value}"));
         combinedValueText.text = $"Combined Value: ${combinedValue + cash}";
     }
 
+    public void ShowGameOver()
+    {
+        gameOverScreen.SetActive(true);
+    }
 }

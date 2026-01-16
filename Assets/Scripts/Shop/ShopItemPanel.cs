@@ -21,17 +21,12 @@ public class ShopItemPanel : MonoBehaviour
         }
     }
 
-    private TMP_Text itemNameText;
-    private TMP_Text itemValueText;
-    private Button itemAction;
+    public TMP_Text itemNameText;
+    public TMP_Text itemValueText;
+    public Button itemAction;
 
     public UnityAction OnPressAction {
         set {
-            if (itemAction == null)
-            {
-                itemAction = GameObject.Find("ShopItemBuyButton").GetComponent<Button>();
-
-            }
             itemAction.onClick.RemoveAllListeners();
             itemAction.onClick.AddListener(value);
         }
@@ -41,14 +36,6 @@ public class ShopItemPanel : MonoBehaviour
     private void FillOutItemFields()
     {
         if (_item == null) return;
-        if (itemNameText == null)
-        {
-            itemNameText = GameObject.Find("ShopItemNameText").GetComponent<TMP_Text>();
-        }
-        if (itemValueText == null)
-        {
-            itemValueText = GameObject.Find("ShopItemValueText").GetComponent<TMP_Text>();
-        }
         itemNameText.text = _item.Name;
         itemValueText.text = $"${_item.Value}";
     }
