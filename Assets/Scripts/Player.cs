@@ -152,6 +152,16 @@ public class Player : MonoBehaviour
         yield return null;
     }
 
+    private bool _inDialog = false;
+    public bool InDialog
+    {
+        get => _inDialog;
+        set
+        {
+            _inDialog = value;
+        }
+    }
+
     private bool _inInventory = false;
     private bool InInventory {
         get => _inInventory;
@@ -162,6 +172,7 @@ public class Player : MonoBehaviour
             if (_inInventory == false && uiManager.InShop)
             {
                 uiManager.InShop = false;
+                
             }
         }
     }
@@ -182,6 +193,7 @@ public class Player : MonoBehaviour
         aimAction.action.canceled += _ => StopAiming();
         toggleInventoryAction.action.started += _ =>
         {
+            if (InDialog) return;
             InInventory = !InInventory;
         };
         debugAction.action.performed += _ => ChangeHealth(-1.0f);
@@ -381,7 +393,7 @@ public class Player : MonoBehaviour
 
     private void ShootAction_Started(InputAction.CallbackContext context)
     {
-        if (!isShooting && Ammo > 0 && !InInventory)
+        if (!isShooting && Ammo > 0 && !InInventory && !InDialog)
         {
             StartCoroutine(HandleShoot());
 
@@ -471,7 +483,7 @@ public class Player : MonoBehaviour
 
     private void HandleMouse()
     {
-        if (InInventory) return;
+        if (InInventory || InDialog) return;
         Vector2 look = lookAction.action.ReadValue<Vector2>();
         transform.Rotate(Vector3.up, look.x * sensitivity);
         Vector3 newEulerRotation = camPivot.eulerAngles + new Vector3(-look.y * sensitivity, 0f, 0f);
@@ -509,6 +521,7 @@ public class Player : MonoBehaviour
 
     public void EnterShop()
     {
+        if (InDialog) return;
         InInventory = true;
         uiManager.InShop = true;
     }
