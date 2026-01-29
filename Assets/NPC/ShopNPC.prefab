@@ -223,9 +223,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2918603967299880938}
   - component: {fileID: 4774436462237375682}
-  - component: {fileID: 3735918235996466257}
+  - component: {fileID: -6053090605838587117}
   m_Layer: 7
-  m_Name: NPC
+  m_Name: ShopNPC
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -271,7 +271,7 @@ CapsuleCollider:
   m_Height: 1.78
   m_Direction: 1
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &3735918235996466257
+--- !u!114 &-6053090605838587117
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -280,10 +280,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 3740239593507033892}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dbefd6505a33fdd4f9fc582c1cebb9d3, type: 3}
+  m_Script: {fileID: 11500000, guid: 77ecbb7a7d478c9e5924c07389ee7b08, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DialogNPC
-  nameOfNPC: TESTNPC
+  m_EditorClassIdentifier: Assembly-CSharp::ShopNPC
+  nameOfNPC: Stefan
   initialHealth: 100
   initialMaxHealth: 100
   npcNameText: {fileID: 5145246760779331048}
@@ -324,7 +324,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 2.42}
+  m_AnchoredPosition: {x: 0, y: 2.4}
   m_SizeDelta: {x: 100, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &3669918167354299594
@@ -883,6 +883,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 7
       objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 43f36559de978c74e99cce337b4f574b, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 6d03dbf0b96d0276bbe4b1cfdebe6edf, type: 2}
     - target: {fileID: 6240733294840144465, guid: 43f36559de978c74e99cce337b4f574b, type: 3}
       propertyPath: m_Layer
       value: 7
